@@ -59,6 +59,8 @@ func (csv *CSV) LoadCSV(filePath string) error {
 		}
 	}
 	csv.RowNum = idx - 1
+	csv.index = INVALID_INT_VAL
+	
 	return nil
 }
 
