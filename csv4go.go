@@ -46,7 +46,6 @@ func (csv *CSV) LoadCSV(filePath string) error {
 			tempRow := ParseLine(strings.Split(scanner.Text(),
 				","),
 				",")
-
 			for i :=0; i < csv.HeaderNum; i++ {
 				cell := make(map[string]string)
 				cell[csv.Header[i]] = tempRow[i]
@@ -67,22 +66,22 @@ func (csv *CSV) Map(mapper RecordMapper) (*CSV) {
 		newRecord = append(newRecord, mapper(r))
 	}
 
-	return &Interfaces{ values: new_ }
+	return csv
 }
 
-func (this *Interfaces) Filter(filter InterfacesFilter) (*Interfaces) {
-	new_ := make([]interface{}, 0, len(this.values))
-	for _, v := range this.values {
+func (csv *CSV) Filter(filter RecordFilter) (*CSV) {
+	newRecord := make(Record, 0, len(csv.Header))
+	for _, v := range csv.Records {
 		if filter(v) {
-			new_ = append(new_, v)
+			newRecord = append(newRecord, v)
 		}
 	}
-	return &Interfaces{ values: new_ }
+	return csv
 }
 
-func (this *Interfaces) Reduce(identity interface{}, reducer InterfacesReducer) (interface{}) {
+func (csv *CSV) Reduce(identity interface{}, reducer RecordReducer) (interface{}) {
 	res := identity
-	for _, v := range this.values {
+	for _, v := range csv.Records {
 		res = reducer(res, v)
 	}
 
