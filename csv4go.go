@@ -28,7 +28,7 @@ type CSV struct {
 }
 
 // LoadCSV
-func (csv *CSV) LoadCSV(filePath string) error {
+func (csv *CSV) LoadCSV(filePath string, seperator string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return err
@@ -39,8 +39,8 @@ func (csv *CSV) LoadCSV(filePath string) error {
 	for scanner.Scan() {
 		if idx == 0 {
 			csv.Header = ParseLine(strings.Split(scanner.Text(),
-				","),
-				",")
+				seperator),
+				seperator)
 			csv.HeaderNum = len(csv.Header)
 			idx++
 		} else {
@@ -60,7 +60,7 @@ func (csv *CSV) LoadCSV(filePath string) error {
 	}
 	csv.RowNum = idx - 1
 	csv.index = INVALID_INT_VAL
-	
+
 	return nil
 }
 
