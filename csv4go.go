@@ -36,6 +36,7 @@ func (csv *CSV) LoadCSV(filePath string, seperator string) error {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 	idx := 0
+	rowidx := 0
 	for scanner.Scan() {
 		if idx == 0 {
 			csv.Header = ParseLine(strings.Split(scanner.Text(),
@@ -56,9 +57,10 @@ func (csv *CSV) LoadCSV(filePath string, seperator string) error {
 				idx++
 			}
 			csv.Records = append(csv.Records, tempRecord)
+			rowidx++
 		}
 	}
-	csv.RowNum = idx - 1
+	csv.RowNum = rowidx
 	csv.index = INVALID_INT_VAL
 
 	return nil

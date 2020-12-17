@@ -1,7 +1,6 @@
 package csv4go
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -13,9 +12,9 @@ func ParseLine(row []string, seperator string) []string {
 	for _, element := range row {
 		comma := strings.Contains(element, "\"")
 		if comma == true || findComma != 0 {
-			fmt.Println("Find Comma: ", element)
+			//fmt.Println("Find Comma: ", element)
 			if comma == true && strings.Count(element, "\"") % 2 == 1 {
-				fmt.Println("not complete comma")
+				//fmt.Println("not complete comma")
 				findComma++
 			} else if comma == true && strings.Count(element, "\"") % 2 == 0 && findComma != 1 {
 				realSplit = append(realSplit, element)
