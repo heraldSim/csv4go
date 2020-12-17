@@ -21,6 +21,9 @@ go get github.com/heraldSim/csv4go
 - All cell data is converting Go-Map
 
 
+### Special Thanks
+- creative@yonsei.ac.kr (Logo Design)
+
 ### License
 MIT License
 
