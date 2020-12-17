@@ -6,22 +6,25 @@ import (
 	"strings"
 )
 
+const INVALID_INT_VAL = -1
+
 // Cell
 type Cell map[string]string
 
 // Record
 type Record []Cell
 
-type RecordMapper func (value Cell) (Cell)
-type RecordFilter func (value Cell) (bool)
-type RecordReducer func (a, b interface{}) (interface{})
+type RecordMapper func(value Record) Record
+type RecordFilter func(value Record) bool
+type RecordReducer func(a, b interface{}) interface{}
 
 // CSV
 type CSV struct {
+	index     int
 	HeaderNum int
 	RowNum    int
 	Header    []string
-	Records   Record
+	Records   []Record
 }
 
 // LoadCSV
@@ -30,10 +33,8 @@ func (csv *CSV) LoadCSV(filePath string) error {
 	if err != nil {
 		return err
 	}
-
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
-
 	idx := 0
 	for scanner.Scan() {
 		if idx == 0 {
@@ -46,40 +47,59 @@ func (csv *CSV) LoadCSV(filePath string) error {
 			tempRow := ParseLine(strings.Split(scanner.Text(),
 				","),
 				",")
-			for i :=0; i < csv.HeaderNum; i++ {
+			var tempRecord Record
+			for i := 0; i < csv.HeaderNum; i++ {
 				cell := make(map[string]string)
 				cell[csv.Header[i]] = tempRow[i]
 
-				csv.Records = append(csv.Records, cell)
+				tempRecord = append(tempRecord, cell)
 				idx++
 			}
+			csv.Records = append(csv.Records, tempRecord)
 		}
 	}
 	csv.RowNum = idx - 1
 	return nil
 }
 
-
-func (csv *CSV) Map(mapper RecordMapper) (*CSV) {
-	newRecord := make(Record, 0, len(csv.Header))
-	for _, r := range csv.Records {
-		newRecord = append(newRecord, mapper(r))
+func (csv *CSV) NextRow() (record Record, ok bool) {
+	csv.index++
+	if csv.index >= csv.RowNum {
+		return Record{}, false
 	}
-
-	return csv
+	return csv.Records[csv.index], true
 }
 
-func (csv *CSV) Filter(filter RecordFilter) (*CSV) {
-	newRecord := make(Record, 0, len(csv.Header))
+func (csv *CSV) Map(mapper RecordMapper) *CSV {
+	newRecords := make([]Record, 0, csv.RowNum)
+	for _, r := range csv.Records {
+		newRecords = append(newRecords, mapper(r))
+	}
+
+	return &CSV{
+		index: INVALID_INT_VAL,
+		HeaderNum: csv.HeaderNum,
+		RowNum:    csv.RowNum,
+		Header:    csv.Header,
+		Records:   newRecords}
+}
+
+func (csv *CSV) Filter(filter RecordFilter) *CSV {
+	newRecords := make([]Record, 0, csv.HeaderNum)
 	for _, v := range csv.Records {
 		if filter(v) {
-			newRecord = append(newRecord, v)
+			newRecords = append(newRecords, v)
 		}
 	}
-	return csv
+	return &CSV{
+		index: INVALID_INT_VAL,
+		HeaderNum: csv.HeaderNum,
+		RowNum:    csv.RowNum,
+		Header:    csv.Header,
+		Records:   newRecords}
 }
 
-func (csv *CSV) Reduce(identity interface{}, reducer RecordReducer) (interface{}) {
+func (csv *CSV) Reduce(identity interface{}, reducer RecordReducer) interface{} {
 	res := identity
 	for _, v := range csv.Records {
 		res = reducer(res, v)
