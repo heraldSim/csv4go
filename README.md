@@ -4,7 +4,7 @@
 
 CSV4Go is a library written in pure Go to use csv data more comfortable
 
-### Suported Go version
+### Supported Go version
 - golang >= 1.13
 
 ### Installation
