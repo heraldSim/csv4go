@@ -90,23 +90,25 @@ func (csv *CSV) Map(mapper RecordMapper) *CSV {
 
 func (csv *CSV) Filter(filter RecordFilter) *CSV {
 	newRecords := make([]Record, 0, csv.HeaderNum)
+	rowNum := 0
 	for _, v := range csv.Records {
 		if filter(v) {
 			newRecords = append(newRecords, v)
+			rowNum++
 		}
 	}
 	return &CSV{
 		index: INVALID_INT_VAL,
 		HeaderNum: csv.HeaderNum,
-		RowNum:    csv.RowNum,
+		RowNum:    rowNum,
 		Header:    csv.Header,
 		Records:   newRecords}
 }
 
 func (csv *CSV) Reduce(identity interface{}, reducer RecordReducer) interface{} {
 	res := identity
-	for _, v := range csv.Records {
-		res = reducer(res, v)
+	for _, record := range csv.Records {
+		res = reducer(res, record)
 	}
 
 	return res
