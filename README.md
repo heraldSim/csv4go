@@ -1,4 +1,4 @@
-<img src="https://i.imgur.com/18I2oHR.jpg">
+<img src="https://i.imgur.com/KiZSSfU.png">
 
 # CSV4Go
 
